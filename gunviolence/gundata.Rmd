@@ -1,0 +1,757 @@
+---
+title: "Example Document"
+author: "Your name here"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Basics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include=FALSE}
+tutorial::go_interactive()
+```
+
+
+# Some gun violence analysis with Wikipedia data
+
+As [requested by John Stokes](https://twitter.com/jonst0kes/status/282330530412888064),
+here are per-capita numbers for gun-related homicides,
+relating to GDP and total homicides,
+so the situation in the United States can be put in context relative to other nations.
+
+main data source is UNODC (via Wikipedia [here](http://en.wikipedia.org/wiki/List_of_countries_by_intentional_homicide_rate)
+and [here](http://en.wikipedia.org/wiki/List_of_countries_by_firearm-related_death_rate)).
+
+GDP data from World Bank, again [via Wikipedia](http://en.wikipedia.org/wiki/List_of_countries_by_GDP_%28PPP%29_per_capita).
+
+If the numbers on Wikipedia are inaccurate, or their relationship is not sound
+(e.g. numbers taken from different years, during which significant change occured)
+then obviously None of this analysis is valid.
+
+To summarize the data,
+every possible way you look at it the US is lousy at preventing gun violence.
+Even when compared to significantly more violent places,
+gun violence in the US is a serious problem,
+and when compared to similarly wealthy places,
+the US is an outstanding disaster.
+
+**UPDATE:** the relationship of the gun data and totals does not seem to be valid.
+[FBI data](http://www2.fbi.gov/ucr/cius2009/offenses/violent_crime/index.html) suggests that
+the relative contribution of guns to homicides in the US is 47%,
+but relating these two data sources gives 80%.
+Internal comparisons should still be fine, but 'fraction' analysis has been stricken.
+
+
+```python
+%pylab inline
+```
+
+    Populating the interactive namespace from numpy and matplotlib
+
+
+
+```python
+from IPython.display import display
+import pandas
+pandas.set_option('display.notebook_repr_html', True)
+pandas.set_option('display.precision', 2)
+```
+
+Some utility functions for display
+
+
+``'python
+def plot_percent(df, limit=10):
+    df['Gun Percent'][:limit].plot()
+    plt.ylim(0,100)
+    plt.title("% Gun Homicide")
+    plt.show()
+
+```
+
+
+```python
+def plot_percapita(df, limit=10):
+    df = df.loc[:,['Homicides', 'Gun Homicides']][:limit]
+    df['Total Homicides'] = df['Homicides'] - df['Gun Homicides']
+    del df['Homicides']
+    df.plot(kind='bar', stacked=True, sort_columns=True)
+    plt.ylabel("per 100k")
+    plt.show()
+
+```
+
+
+```python
+def display_relevant(df, limit=10):
+    display(df.loc[:,['Homicides', 'Gun Homicides', 'Gun Data Source']][:limit])
+```
+
+Load the data
+
+
+```python
+totals = pandas.read_csv('totals.csv', '\t', index_col=0)
+guns = pandas.read_csv('guns.csv', '\t', index_col=0)
+gdp = pandas.read_csv('gdp.csv', '\t', index_col=1)
+data = totals.join(guns).join(gdp)
+data['Gun Percent'] = 100 * data['Gun Homicides'] / data['Homicides']
+del data['Unintentional'],data['Undetermined'],data['Gun Suicides']
+data = data.dropna()
+```
+
+Of all sampled countries (Found data for 68 countries),
+the US is in the top 15 in Gun Homicides per capita.
+
+Numbers are per 100k.
+
+
+```python
+data = data.sort_values("Gun Homicides", ascending=False)
+display_relevant(data, 15)
+```
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Homicides</th>
+      <th>Gun Homicides</th>
+      <th>Gun Data Source</th>
+    </tr>
+    <tr>
+      <th>Country</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>El Salvador</th>
+      <td>69.2</td>
+      <td>50.36</td>
+      <td>OAS 2011[1]</td>
+    </tr>
+    <tr>
+      <th>Jamaica</th>
+      <td>52.2</td>
+      <td>47.44</td>
+      <td>OAS 2011[1]</td>
+    </tr>
+    <tr>
+      <th>Honduras</th>
+      <td>91.6</td>
+      <td>46.70</td>
+      <td>OAS 2011[1]</td>
+    </tr>
+    <tr>
+      <th>Guatemala</th>
+      <td>38.5</td>
+      <td>38.50</td>
+      <td>OAS 2011[1]</td>
+    </tr>
+    <tr>
+      <th>Colombia</th>
+      <td>33.4</td>
+      <td>27.10</td>
+      <td>UNODC 2011 [2]</td>
+    </tr>
+    <tr>
+      <th>Brazil</th>
+      <td>21.0</td>
+      <td>18.10</td>
+      <td>UNODC 2011[3]</td>
+    </tr>
+    <tr>
+      <th>Panama</th>
+      <td>21.6</td>
+      <td>12.92</td>
+      <td>OAS 2011[1]</td>
+    </tr>
+    <tr>
+      <th>Mexico</th>
+      <td>16.9</td>
+      <td>10.00</td>
+      <td>UNODC 2011[4]</td>
+    </tr>
+    <tr>
+      <th>Paraguay</th>
+      <td>11.5</td>
+      <td>7.35</td>
+      <td>UNODC 2000[11]</td>
+    </tr>
+    <tr>
+      <th>Nicaragua</th>
+      <td>13.6</td>
+      <td>7.14</td>
+      <td>OAS 2011[1]</td>
+    </tr>
+    <tr>
+      <th>United States</th>
+      <td>4.2</td>
+      <td>3.70</td>
+      <td>OAS 2012[5][6]</td>
+    </tr>
+    <tr>
+      <th>Costa Rica</th>
+      <td>10.0</td>
+      <td>3.32</td>
+      <td>UNODC 2002[7]</td>
+    </tr>
+    <tr>
+      <th>Uruguay</th>
+      <td>5.9</td>
+      <td>3.24</td>
+      <td>UNODC 2002[7]</td>
+    </tr>
+    <tr>
+      <th>Barbados</th>
+      <td>11.3</td>
+      <td>3.00</td>
+      <td>UNODC 2000[11]</td>
+    </tr>
+    <tr>
+      <th>Argentina</th>
+      <td>3.4</td>
+      <td>3.00</td>
+      <td>UNODC 2011[12]</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+What is the homicide rate in Spain?
+
+```{python ex="create_a", type="pre-exercise-code"}
+import pandas
+totals = pandas.read_csv('totals.csv', '\t', index_col=0)
+guns = pandas.read_csv('guns.csv', '\t', index_col=0)
+gdp = pandas.read_csv('gdp.csv', '\t', index_col=1)
+data = totals.join(guns).join(gdp)
+data['Gun Percent'] = 100 * data['Gun Homicides'] / data['Homicides']
+del data['Unintentional'],data['Undetermined'],data['Gun Suicides']
+data = data.dropna()
+```
+
+```{python ex="create_a", type="sample-code"}
+# Create a variable spain, with the row data
+spain = ____
+
+# Print out spain
+print(spain)
+```
+
+```{python ex="create_a", type="solution"}
+# Create a variable spain, with the row data
+spain = data['Spain']
+
+# Print out spain
+print(spain
+```
+
+```{python ex="create_a", type="sct"}
+test_object("spain")
+test_output_contains("a", incorrect_msg = "Make sure to print `spain`.")
+success_msg("Great!")
+```
+
+
+
+
+Take top 30 Countries by GDP
+
+
+```python
+top = data.sort_values('GDP')[-30:]
+```
+
+and rank them by Gun Homicides per capita:
+
+
+```python
+top_by_guns = top.sort_values("Gun Homicides", ascending=False)
+display_relevant(top_by_guns, 5)
+plot_percapita(top_by_guns, 10)
+```
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Homicides</th>
+      <th>Gun Homicides</th>
+      <th>Gun Data Source</th>
+    </tr>
+    <tr>
+      <th>Country</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>United States</th>
+      <td>4.2</td>
+      <td>3.70</td>
+      <td>OAS 2012[5][6]</td>
+    </tr>
+    <tr>
+      <th>Israel</th>
+      <td>2.1</td>
+      <td>0.94</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>Canada</th>
+      <td>1.6</td>
+      <td>0.76</td>
+      <td>Krug 1998[13]</td>
+    </tr>
+    <tr>
+      <th>Luxembourg</th>
+      <td>2.5</td>
+      <td>0.60</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>Greece</th>
+      <td>1.5</td>
+      <td>0.59</td>
+      <td>Krug 1998[13]</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+**NOTE:** these bar graphs should not be interpreted as fractions of a total,
+as the two data sources do not appear to be comparable.
+But the red and blue bar graphs should still be internally comparable.
+
+The US is easily #1 of 30 wealthiest countries in Gun Homicides per capita,
+by a factor of 4:1
+
+Adding USA, Canada, and Mexico to all of Europe,
+USA is a strong #2 behind Mexico in total gun homicides per-capita
+
+
+```python
+index = (data['Region'] == 'Europe') + \
+        (data.index == 'United States') + \
+        (data.index == 'Canada') + \
+        (data.index == 'Mexico')
+selected = data[index]
+
+print("By Total Gun Homicides")
+sys.stdout.flush()
+
+by_guns = selected.sort_values("Gun Homicides", ascending=False)
+#by_guns['Gun Homicides'].plot(kind='bar')
+plot_percapita(by_guns, limit=25)
+display_relevant(selected, limit=None)
+
+```
+
+    By Total Gun Homicides
+
+
+    /home/zunbeltz/anaconda3/lib/python3.6/site-packages/pandas/core/computation/expressions.py:183: UserWarning: evaluating in Python space because the '+' operator is not supported by numexpr for the bool dtype, use '|' instead
+      .format(op=op_str, alt_op=unsupported[op_str]))
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Homicides</th>
+      <th>Gun Homicides</th>
+      <th>Gun Data Source</th>
+    </tr>
+    <tr>
+      <th>Country</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Mexico</th>
+      <td>16.9</td>
+      <td>10.00</td>
+      <td>UNODC 2011[4]</td>
+    </tr>
+    <tr>
+      <th>United States</th>
+      <td>4.2</td>
+      <td>3.70</td>
+      <td>OAS 2012[5][6]</td>
+    </tr>
+    <tr>
+      <th>Montenegro</th>
+      <td>3.5</td>
+      <td>2.06</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>Moldova</th>
+      <td>7.5</td>
+      <td>1.04</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>Canada</th>
+      <td>1.6</td>
+      <td>0.76</td>
+      <td>Krug 1998[13]</td>
+    </tr>
+    <tr>
+      <th>Serbia</th>
+      <td>1.2</td>
+      <td>0.62</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>Luxembourg</th>
+      <td>2.5</td>
+      <td>0.60</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>Greece</th>
+      <td>1.5</td>
+      <td>0.59</td>
+      <td>Krug 1998[13]</td>
+    </tr>
+    <tr>
+      <th>Croatia</th>
+      <td>1.4</td>
+      <td>0.57</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>Switzerland</th>
+      <td>0.7</td>
+      <td>0.52</td>
+      <td>OAS 2011[1]</td>
+    </tr>
+    <tr>
+      <th>Malta</th>
+      <td>1.0</td>
+      <td>0.48</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>Portugal</th>
+      <td>1.2</td>
+      <td>0.48</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>Belarus</th>
+      <td>4.9</td>
+      <td>0.38</td>
+      <td>UNODC 2002[7]</td>
+    </tr>
+    <tr>
+      <th>Ireland</th>
+      <td>1.2</td>
+      <td>0.36</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>Italy</th>
+      <td>0.9</td>
+      <td>0.36</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>Ukraine</th>
+      <td>5.2</td>
+      <td>0.35</td>
+      <td>UNODC 2000[11]</td>
+    </tr>
+    <tr>
+      <th>Estonia</th>
+      <td>5.2</td>
+      <td>0.30</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>Belgium</th>
+      <td>1.7</td>
+      <td>0.29</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>Finland</th>
+      <td>2.2</td>
+      <td>0.26</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>Lithuania</th>
+      <td>6.6</td>
+      <td>0.24</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>Bulgaria</th>
+      <td>2.0</td>
+      <td>0.23</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>Georgia</th>
+      <td>4.3</td>
+      <td>0.23</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>France</th>
+      <td>1.1</td>
+      <td>0.22</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>Denmark</th>
+      <td>0.9</td>
+      <td>0.22</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>Netherlands</th>
+      <td>1.1</td>
+      <td>0.20</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>Sweden</th>
+      <td>1.0</td>
+      <td>0.19</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>Slovakia</th>
+      <td>1.5</td>
+      <td>0.18</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>Austria</th>
+      <td>0.6</td>
+      <td>0.18</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>Latvia</th>
+      <td>3.1</td>
+      <td>0.18</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>Spain</th>
+      <td>0.8</td>
+      <td>0.15</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>Hungary</th>
+      <td>1.3</td>
+      <td>0.13</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>Czech Republic</th>
+      <td>1.7</td>
+      <td>0.12</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>Germany</th>
+      <td>0.8</td>
+      <td>0.06</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>Slovenia</th>
+      <td>0.7</td>
+      <td>0.05</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>Norway</th>
+      <td>0.6</td>
+      <td>0.04</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>United Kingdom</th>
+      <td>1.2</td>
+      <td>0.04</td>
+      <td>WHO2012 [10]</td>
+    </tr>
+    <tr>
+      <th>Romania</th>
+      <td>2.0</td>
+      <td>0.04</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+    <tr>
+      <th>Poland</th>
+      <td>1.1</td>
+      <td>0.02</td>
+      <td>WHO 2012[10]</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+Let's just compare US, Canada, and UK:
+
+
+```python
+select = data.loc[['United States', 'Canada', 'United Kingdom']]
+plot_percapita(select)
+```
+
+
+
+Normalize to the US numbers (inverse)
+
+
+```python
+select['Homicides'] = select['Homicides']['United States'] / select['Homicides']
+select['Gun Homicides'] = select['Gun Homicides']['United States'] / select['Gun Homicides']
+display_relevant(select)
+```
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Homicides</th>
+      <th>Gun Homicides</th>
+      <th>Gun Data Source</th>
+    </tr>
+    <tr>
+      <th>Country</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>United States</th>
+      <td>1.00</td>
+      <td>1.00</td>
+      <td>OAS 2012[5][6]</td>
+    </tr>
+    <tr>
+      <th>Canada</th>
+      <td>2.62</td>
+      <td>4.87</td>
+      <td>Krug 1998[13]</td>
+    </tr>
+    <tr>
+      <th>United Kingdom</th>
+      <td>3.50</td>
+      <td>92.50</td>
+      <td>WHO2012 [10]</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+So, you are 2.6 times more likely to be killed in the US than Canada,
+and 3.5 times more likely than in the UK.
+That's bad, but not extreme.
+
+However, you are 4.9 times more likely to be killed *with a gun* in the US than Canada,
+and almost 100 times more likely than in the UK.  That is pretty extreme.
+
+
+Countries represented:
+
+
+```python
+for country in data.index:
+    print country
+```
+
+
+      File "<ipython-input-80-71833fc9d901>", line 2
+        print country
+                    ^
+    SyntaxError: Missing parentheses in call to 'print'. Did you mean print(country)?
+
+
