@@ -240,9 +240,12 @@ What is the homicide rate in Spain?
 
 ```{python ex="create_a", type="pre-exercise-code"}
 import pandas
-totals = pandas.read_csv('totals.csv', '\t', index_col=0)
-guns = pandas.read_csv('guns.csv', '\t', index_col=0)
-gdp = pandas.read_csv('gdp.csv', '\t', index_col=1)
+url="https://gitlab.com/zunbeltz/datascience-showcase/raw/master/gunviolence/totals.csv"
+totals = pandas.read_csv(url, '\t', index_col=0)
+url="https://gitlab.com/zunbeltz/datascience-showcase/raw/master/gunviolence/guns.csv"
+guns = pandas.read_csv(url, '\t', index_col=0)
+url="https://gitlab.com/zunbeltz/datascience-showcase/raw/master/gunviolence/gdp.csv"
+gdp = pandas.read_csv(url, '\t', index_col=1)
 data = totals.join(guns).join(gdp)
 data['Gun Percent'] = 100 * data['Gun Homicides'] / data['Homicides']
 del data['Unintentional'],data['Undetermined'],data['Gun Suicides']
@@ -251,7 +254,7 @@ data = data.dropna()
 
 ```{python ex="create_a", type="sample-code"}
 # Create a variable spain, with the row data
-spain = ____
+spain = ___.loc[]
 
 # Print out spain
 print(spain)
@@ -259,15 +262,14 @@ print(spain)
 
 ```{python ex="create_a", type="solution"}
 # Create a variable spain, with the row data
-spain = data['Spain']
+spain = data.loc['Spain']
 
 # Print out spain
-print(spain
+print(spain)
 ```
 
 ```{python ex="create_a", type="sct"}
-test_object("spain")
-test_output_contains("a", incorrect_msg = "Make sure to print `spain`.")
+Ex().check_object('spain').has_equal_value()
 success_msg("Great!")
 ```
 
