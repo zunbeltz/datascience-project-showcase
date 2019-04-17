@@ -1,6 +1,6 @@
 ---
-title: "Example Document"
-author: "Your name here"
+title: "Some gun violence analysis with Wikipedia data"
+author: "Zunbeltz Izaola"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Basics}
@@ -12,8 +12,7 @@ vignette: >
 tutorial::go_interactive()
 ```
 
-
-# Some gun violence analysis with Wikipedia data
+This page is based in the work by minrk user at [github](https://www.github.com).
 
 As [requested by John Stokes](https://twitter.com/jonst0kes/status/282330530412888064),
 here are per-capita numbers for gun-related homicides,
@@ -61,7 +60,7 @@ pandas.set_option('display.precision', 2)
 Some utility functions for display
 
 
-``'python
+```python
 def plot_percent(df, limit=10):
     df['Gun Percent'][:limit].plot()
     plt.ylim(0,100)
