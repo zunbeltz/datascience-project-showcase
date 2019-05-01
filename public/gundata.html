@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Zunbeltz Izaola" />
+
+
+<title>Some gun violence analysis with Wikipedia data</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#header {
+text-align: center;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Some gun violence analysis with Wikipedia data</h1>
+<h4 class="author"><em>Zunbeltz Izaola</em></h4>
+
+
+
+<script>/*
+ DataCamp Light
+ Version 1.1.0
+ */
+!function(){"use strict";function e(){function e(e){return null!==location.hostname.match(e)}function t(e){for(var t=0;t<i.length;t++)i[t].getElementsByTagName("a")[0].href=e}function a(){for(;i[0];)i[0].parentNode.removeChild(i[0])}var i=document.getElementsByClassName("powered-by-datacamp");e("r-bloggers.com")?t("https://www.datacamp.com?tap_a=5644-dce66f&tap_s=10907-287229"):e("datacamp.com")&&a()}function t(e){e.className+=" datacamp-exercise";if("height"in e.dataset&&"auto"!==e.dataset.height){var t=Math.round(e.dataset.height);if(isNaN(t))console.log("Invalid height attribute.");else if(t>=p){e.style.height=t+"px";var a="height:"+t+"px;";e.setAttribute("style",a)}else console.log("The height attribute should be >= "+p+".")}"encoded"in e.dataset&&(e.innerHTML='<div class="encoded">'+e.innerHTML.trim()+"</div>"),e.innerHTML+='<!--[if lt IE 10]><p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p><![endif]--><div ng-controller="NormalExerciseController"><div class="dcl-exercise-area" resize-layout=""><div class="dcl-left-pane" ng-class="{\'dcl-mini\': useMiniLayout}"><ul class="dcl-content--tab"><li><a href="" ng-click="activateLeftTab(\'usercode\')" ng-class="{\'dcl-active\': isActiveLeftTab(\'usercode\')}">script.{{backendConfig.extension}}</a></li><li ng-show="solutionTabShown"><a class="dcl-animation--flash" href="" ng-click="activateLeftTab(\'solution\')" ng-class="{\'dcl-active\': isActiveLeftTab(\'solution\')}">solution.{{backendConfig.extension}}</a></li><li><a href="" ng-show="useMiniLayout" ng-click="activateLeftTab(\'console\')" ng-class="{\'dcl-active\': isActiveLeftTab(\'console\')}">{{backendConfig.console}}</a></li><li><a href="" ng-show="useMiniLayout && plotTabShown" ng-click="activateLeftTab(\'plots\')" ng-class="{\'dcl-active\': isActiveLeftTab(\'plots\')}">Plots</a></li></ul><div class="dcl-content--tab-body"><div code-editor="" control="editor" ng-show="isActiveLeftTab(\'usercode\') || isActiveLeftTab(\'solution\')" ng-model="userCode"></div><div ng-show="isActiveLeftTab(\'console\')" class="dcl-console-target dcl-console-mini-target"></div><div ng-show="isActiveLeftTab(\'plots\')" class="dcl-plots-mini-target"></div><div growl="" ng-show="!isActiveLeftTab(\'plots\')" inline="true" limit-messages="1" sct-feedback="" class="sct-feedback-container"></div></div></div><div ng-show="!useMiniLayout" class="dcl-right-pane clearfix"><a class="dcl-github-link dcl-no-link-style" href="https://github.com/datacamp/datacamp-light" uib-tooltip="View DataCamp Light on Github" tooltip-placement="left" target="_blank"><div class="dcl-github-logo"></div></a><ul class="dcl-content--tab"><li><a href="" ng-click="activateRightTab(\'console\')" ng-class="{\'dcl-active\': isActiveRightTab(\'console\')}">{{backendConfig.console}}</a></li><li><a ng-show="plotTabShown" href="" ng-click="activateRightTab(\'plots\')" ng-class="{\'dcl-active\': isActiveRightTab(\'plots\')}">Plots</a></li></ul><div class="dcl-content--tab-body"><div ng-show="isActiveRightTab(\'console\')" control="console" class="dcl-console-target dcl-console-full-target"><console class="dcl-console"></console></div><div ng-show="isActiveRightTab(\'plots\')" class="dcl-plots-full-target"><plots-container class="dcl-plots-container"></plots-container></div></div></div></div><action-panel exercise="exercise"></action-panel></div>';var i='<div class="powered-by-datacamp"><a href="https://www.datacamp.com">Powered by DataCamp<div class="logo"></div></a></div>',o=document.createElement("div");o.innerHTML=i;var c=o.firstChild;e.parentNode.insertBefore(c,e.nextSibling)}function a(e){var t=document.createElement("script");t.type="text/javascript",t.src=e,t.charset="utf-8",l("body",t)}function i(e){var t=document.createElement("link");t.type="text/css",t.rel="stylesheet",t.href=e,l("head",t)}function o(){var a=document.querySelectorAll("[data-datacamp-exercise]");0===a.length&&console.log("No DataCamp Light exercises found. Make sure the exercise has the 'data-datacamp-exercise' attribute.");for(var i=0;i<a.length;i++)!function(e){var i=a[e];(" "+i.className+" ").indexOf(" datacamp-exercise ")>-1||t(i)}(i);e()}function c(){o(),a(g+"script-8fa338a2dc.js")}function n(){o(),window.bootstrapDCLightExercises()}function s(){d();for(var e=[g+"style-8c2f2e17fe.css","https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"],t=0;t<e.length;t++)i(e[t])}function l(e,t){document.getElementsByTagName(e)[0].appendChild(t)}function d(){var e=document.createElement("style");e.type="text/css",l("head",e);var t='div.datacamp-exercise {  margin: 0;  border: 1px solid #d5eaef;  background: none;  position: relative;  min-height: 300px;  color: black;  box-shadow: none;}div[data-datacamp-exercise] {  margin: 0;  border: 1px solid #d5eaef;  background: #fff url(https://cdn.datacamp.com/spinner.gif) no-repeat center center !important;  background-size: auto 80px !important;  position: relative;  min-height: 300px;  color: transparent;  box-shadow: none;}div[data-datacamp-exercise] > code,div[data-datacamp-exercise] > div,div[data-datacamp-exercise] > p {  display: none;}div.powered-by-datacamp {  margin: 5px 0;  display: block;}div.powered-by-datacamp a {@import "https://fonts.googleapis.com/css?family=Open+Sans";  font-family: "Open Sans", sans-serif;  text-decoration: none;  border: 0;  color: #3ac;  font-size: 20px;}div.powered-by-datacamp .logo {  vertical-align: sub;  display: inline-block;  background: url("https://cdn.datacamp.com/dcl/assets/images/logo_blue.svg") no-repeat center center;  background-size: contain;  height: 27px;  width: 23px;  margin-left: 4px;}';e.styleSheet?e.styleSheet.cssText=t:e.innerHTML=t}function r(){return"function"==typeof window.initAddedDCLightExercises}var p=300,g="https://cdn.datacamp.com/dcl/";r()?console.log("Warning: tried to load DataCamp Light multiple times."):(window.initAddedDCLightExercises=n,s(),"complete"==document.readyState||"loaded"==document.readyState||"interactive"==document.readyState?c():document.addEventListener("DOMContentLoaded",c))}();</script>
+<p>This page is based in the work by minrk user at <a href="https://www.github.com">github</a>.</p>
+<p>As <a href="https://twitter.com/jonst0kes/status/282330530412888064">requested by John Stokes</a>, here are per-capita numbers for gun-related homicides, relating to GDP and total homicides, so the situation in the United States can be put in context relative to other nations.</p>
+<p>main data source is UNODC (via Wikipedia <a href="http://en.wikipedia.org/wiki/List_of_countries_by_intentional_homicide_rate">here</a> and <a href="http://en.wikipedia.org/wiki/List_of_countries_by_firearm-related_death_rate">here</a>).</p>
+<p>GDP data from World Bank, again <a href="http://en.wikipedia.org/wiki/List_of_countries_by_GDP_%28PPP%29_per_capita">via Wikipedia</a>.</p>
+<p>If the numbers on Wikipedia are inaccurate, or their relationship is not sound (e.g. numbers taken from different years, during which significant change occured) then obviously None of this analysis is valid.</p>
+<p>To summarize the data, every possible way you look at it the US is lousy at preventing gun violence. Even when compared to significantly more violent places, gun violence in the US is a serious problem, and when compared to similarly wealthy places, the US is an outstanding disaster.</p>
+<p><strong>UPDATE:</strong> the relationship of the gun data and totals does not seem to be valid. <a href="http://www2.fbi.gov/ucr/cius2009/offenses/violent_crime/index.html">FBI data</a> suggests that the relative contribution of guns to homicides in the US is 47%, but relating these two data sources gives 80%. Internal comparisons should still be fine, but ‘fraction’ analysis has been stricken.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb1-1" title="1"><span class="op">%</span>pylab inline</a></code></pre></div>
+<pre><code>Populating the interactive namespace from numpy and matplotlib</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb3-1" title="1"><span class="im">from</span> IPython.display <span class="im">import</span> display</a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="im">import</span> pandas</a>
+<a class="sourceLine" id="cb3-3" title="3">pandas.set_option(<span class="st">&#39;display.notebook_repr_html&#39;</span>, <span class="va">True</span>)</a>
+<a class="sourceLine" id="cb3-4" title="4">pandas.set_option(<span class="st">&#39;display.precision&#39;</span>, <span class="dv">2</span>)</a></code></pre></div>
+<p>Some utility functions for display</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">def</span> plot_percent(df, limit<span class="op">=</span><span class="dv">10</span>):</a>
+<a class="sourceLine" id="cb4-2" title="2">    df[<span class="st">&#39;Gun Percent&#39;</span>][:limit].plot()</a>
+<a class="sourceLine" id="cb4-3" title="3">    plt.ylim(<span class="dv">0</span>,<span class="dv">100</span>)</a>
+<a class="sourceLine" id="cb4-4" title="4">    plt.title(<span class="st">&quot;</span><span class="sc">% G</span><span class="st">un Homicide&quot;</span>)</a>
+<a class="sourceLine" id="cb4-5" title="5">    plt.show()</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" title="1"><span class="kw">def</span> plot_percapita(df, limit<span class="op">=</span><span class="dv">10</span>):</a>
+<a class="sourceLine" id="cb5-2" title="2">    df <span class="op">=</span> df.loc[:,[<span class="st">&#39;Homicides&#39;</span>, <span class="st">&#39;Gun Homicides&#39;</span>]][:limit]</a>
+<a class="sourceLine" id="cb5-3" title="3">    df[<span class="st">&#39;Total Homicides&#39;</span>] <span class="op">=</span> df[<span class="st">&#39;Homicides&#39;</span>] <span class="op">-</span> df[<span class="st">&#39;Gun Homicides&#39;</span>]</a>
+<a class="sourceLine" id="cb5-4" title="4">    <span class="kw">del</span> df[<span class="st">&#39;Homicides&#39;</span>]</a>
+<a class="sourceLine" id="cb5-5" title="5">    df.plot(kind<span class="op">=</span><span class="st">&#39;bar&#39;</span>, stacked<span class="op">=</span><span class="va">True</span>, sort_columns<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb5-6" title="6">    plt.ylabel(<span class="st">&quot;per 100k&quot;</span>)</a>
+<a class="sourceLine" id="cb5-7" title="7">    plt.show()</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" title="1"><span class="kw">def</span> display_relevant(df, limit<span class="op">=</span><span class="dv">10</span>):</a>
+<a class="sourceLine" id="cb6-2" title="2">    display(df.loc[:,[<span class="st">&#39;Homicides&#39;</span>, <span class="st">&#39;Gun Homicides&#39;</span>, <span class="st">&#39;Gun Data Source&#39;</span>]][:limit])</a></code></pre></div>
+<p>Load the data</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb7-1" title="1">totals <span class="op">=</span> pandas.read_csv(<span class="st">&#39;totals.csv&#39;</span>, <span class="st">&#39;</span><span class="ch">\t</span><span class="st">&#39;</span>, index_col<span class="op">=</span><span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb7-2" title="2">guns <span class="op">=</span> pandas.read_csv(<span class="st">&#39;guns.csv&#39;</span>, <span class="st">&#39;</span><span class="ch">\t</span><span class="st">&#39;</span>, index_col<span class="op">=</span><span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb7-3" title="3">gdp <span class="op">=</span> pandas.read_csv(<span class="st">&#39;gdp.csv&#39;</span>, <span class="st">&#39;</span><span class="ch">\t</span><span class="st">&#39;</span>, index_col<span class="op">=</span><span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb7-4" title="4">data <span class="op">=</span> totals.join(guns).join(gdp)</a>
+<a class="sourceLine" id="cb7-5" title="5">data[<span class="st">&#39;Gun Percent&#39;</span>] <span class="op">=</span> <span class="dv">100</span> <span class="op">*</span> data[<span class="st">&#39;Gun Homicides&#39;</span>] <span class="op">/</span> data[<span class="st">&#39;Homicides&#39;</span>]</a>
+<a class="sourceLine" id="cb7-6" title="6"><span class="kw">del</span> data[<span class="st">&#39;Unintentional&#39;</span>],data[<span class="st">&#39;Undetermined&#39;</span>],data[<span class="st">&#39;Gun Suicides&#39;</span>]</a>
+<a class="sourceLine" id="cb7-7" title="7">data <span class="op">=</span> data.dropna()</a></code></pre></div>
+<p>Of all sampled countries (Found data for 68 countries), the US is in the top 15 in Gun Homicides per capita.</p>
+<p>Numbers are per 100k.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb8-1" title="1">data <span class="op">=</span> data.sort_values(<span class="st">&quot;Gun Homicides&quot;</span>, ascending<span class="op">=</span><span class="va">False</span>)</a>
+<a class="sourceLine" id="cb8-2" title="2">display_relevant(data, <span class="dv">15</span>)</a></code></pre></div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th>
+</th>
+<th>
+Homicides
+</th>
+<th>
+Gun Homicides
+</th>
+<th>
+Gun Data Source
+</th>
+</tr>
+<tr>
+<th>
+Country
+</th>
+<th>
+</th>
+<th>
+</th>
+<th>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>
+El Salvador
+</th>
+<td>
+69.2
+</td>
+<td>
+50.36
+</td>
+<td>
+OAS 2011[1]
+</td>
+</tr>
+<tr>
+<th>
+Jamaica
+</th>
+<td>
+52.2
+</td>
+<td>
+47.44
+</td>
+<td>
+OAS 2011[1]
+</td>
+</tr>
+<tr>
+<th>
+Honduras
+</th>
+<td>
+91.6
+</td>
+<td>
+46.70
+</td>
+<td>
+OAS 2011[1]
+</td>
+</tr>
+<tr>
+<th>
+Guatemala
+</th>
+<td>
+38.5
+</td>
+<td>
+38.50
+</td>
+<td>
+OAS 2011[1]
+</td>
+</tr>
+<tr>
+<th>
+Colombia
+</th>
+<td>
+33.4
+</td>
+<td>
+27.10
+</td>
+<td>
+UNODC 2011 [2]
+</td>
+</tr>
+<tr>
+<th>
+Brazil
+</th>
+<td>
+21.0
+</td>
+<td>
+18.10
+</td>
+<td>
+UNODC 2011[3]
+</td>
+</tr>
+<tr>
+<th>
+Panama
+</th>
+<td>
+21.6
+</td>
+<td>
+12.92
+</td>
+<td>
+OAS 2011[1]
+</td>
+</tr>
+<tr>
+<th>
+Mexico
+</th>
+<td>
+16.9
+</td>
+<td>
+10.00
+</td>
+<td>
+UNODC 2011[4]
+</td>
+</tr>
+<tr>
+<th>
+Paraguay
+</th>
+<td>
+11.5
+</td>
+<td>
+7.35
+</td>
+<td>
+UNODC 2000[11]
+</td>
+</tr>
+<tr>
+<th>
+Nicaragua
+</th>
+<td>
+13.6
+</td>
+<td>
+7.14
+</td>
+<td>
+OAS 2011[1]
+</td>
+</tr>
+<tr>
+<th>
+United States
+</th>
+<td>
+4.2
+</td>
+<td>
+3.70
+</td>
+<td>
+OAS 2012[5][6]
+</td>
+</tr>
+<tr>
+<th>
+Costa Rica
+</th>
+<td>
+10.0
+</td>
+<td>
+3.32
+</td>
+<td>
+UNODC 2002[7]
+</td>
+</tr>
+<tr>
+<th>
+Uruguay
+</th>
+<td>
+5.9
+</td>
+<td>
+3.24
+</td>
+<td>
+UNODC 2002[7]
+</td>
+</tr>
+<tr>
+<th>
+Barbados
+</th>
+<td>
+11.3
+</td>
+<td>
+3.00
+</td>
+<td>
+UNODC 2000[11]
+</td>
+</tr>
+<tr>
+<th>
+Argentina
+</th>
+<td>
+3.4
+</td>
+<td>
+3.00
+</td>
+<td>
+UNODC 2011[12]
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>What is the homicide rate in Spain?</p>
+<div data-datacamp-exercise data-height="300" data-encoded="true">
+eyJsYW5ndWFnZSI6InB5dGhvbiIsInByZV9leGVyY2lzZV9jb2RlIjoiaW1wb3J0IHBhbmRhc1xudXJsPVwiaHR0cHM6Ly9naXRsYWIuY29tL3p1bmJlbHR6L2RhdGFzY2llbmNlLXNob3djYXNlL3Jhdy9tYXN0ZXIvZ3VudmlvbGVuY2UvdG90YWxzLmNzdlwiXG50b3RhbHMgPSBwYW5kYXMucmVhZF9jc3YodXJsLCAnXFx0JywgaW5kZXhfY29sPTApXG51cmw9XCJodHRwczovL2dpdGxhYi5jb20venVuYmVsdHovZGF0YXNjaWVuY2Utc2hvd2Nhc2UvcmF3L21hc3Rlci9ndW52aW9sZW5jZS9ndW5zLmNzdlwiXG5ndW5zID0gcGFuZGFzLnJlYWRfY3N2KHVybCwgJ1xcdCcsIGluZGV4X2NvbD0wKVxudXJsPVwiaHR0cHM6Ly9naXRsYWIuY29tL3p1bmJlbHR6L2RhdGFzY2llbmNlLXNob3djYXNlL3Jhdy9tYXN0ZXIvZ3VudmlvbGVuY2UvZ2RwLmNzdlwiXG5nZHAgPSBwYW5kYXMucmVhZF9jc3YodXJsLCAnXFx0JywgaW5kZXhfY29sPTEpXG5kYXRhID0gdG90YWxzLmpvaW4oZ3Vucykuam9pbihnZHApXG5kYXRhWydHdW4gUGVyY2VudCddID0gMTAwICogZGF0YVsnR3VuIEhvbWljaWRlcyddIC8gZGF0YVsnSG9taWNpZGVzJ11cbmRlbCBkYXRhWydVbmludGVudGlvbmFsJ10sZGF0YVsnVW5kZXRlcm1pbmVkJ10sZGF0YVsnR3VuIFN1aWNpZGVzJ11cbmRhdGEgPSBkYXRhLmRyb3BuYSgpIiwic2FtcGxlIjoiIyBDcmVhdGUgYSB2YXJpYWJsZSBzcGFpbiwgd2l0aCB0aGUgcm93IGRhdGFcbnNwYWluID0gX19fLmxvY1tdXG5cbiMgUHJpbnQgb3V0IHNwYWluXG5wcmludChzcGFpbikiLCJzb2x1dGlvbiI6IiMgQ3JlYXRlIGEgdmFyaWFibGUgc3BhaW4sIHdpdGggdGhlIHJvdyBkYXRhXG5zcGFpbiA9IGRhdGEubG9jWydTcGFpbiddXG5cbiMgUHJpbnQgb3V0IHNwYWluXG5wcmludChzcGFpbikiLCJzY3QiOiJFeCgpLmNoZWNrX29iamVjdCgnc3BhaW4nKS5oYXNfZXF1YWxfdmFsdWUoKVxuc3VjY2Vzc19tc2coXCJHcmVhdCFcIikifQ==
+</div>
+<p>Take top 30 Countries by GDP</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb9-1" title="1">top <span class="op">=</span> data.sort_values(<span class="st">&#39;GDP&#39;</span>)[<span class="op">-</span><span class="dv">30</span>:]</a></code></pre></div>
+<p>and rank them by Gun Homicides per capita:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb10-1" title="1">top_by_guns <span class="op">=</span> top.sort_values(<span class="st">&quot;Gun Homicides&quot;</span>, ascending<span class="op">=</span><span class="va">False</span>)</a>
+<a class="sourceLine" id="cb10-2" title="2">display_relevant(top_by_guns, <span class="dv">5</span>)</a>
+<a class="sourceLine" id="cb10-3" title="3">plot_percapita(top_by_guns, <span class="dv">10</span>)</a></code></pre></div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th>
+</th>
+<th>
+Homicides
+</th>
+<th>
+Gun Homicides
+</th>
+<th>
+Gun Data Source
+</th>
+</tr>
+<tr>
+<th>
+Country
+</th>
+<th>
+</th>
+<th>
+</th>
+<th>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>
+United States
+</th>
+<td>
+4.2
+</td>
+<td>
+3.70
+</td>
+<td>
+OAS 2012[5][6]
+</td>
+</tr>
+<tr>
+<th>
+Israel
+</th>
+<td>
+2.1
+</td>
+<td>
+0.94
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+Canada
+</th>
+<td>
+1.6
+</td>
+<td>
+0.76
+</td>
+<td>
+Krug 1998[13]
+</td>
+</tr>
+<tr>
+<th>
+Luxembourg
+</th>
+<td>
+2.5
+</td>
+<td>
+0.60
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+Greece
+</th>
+<td>
+1.5
+</td>
+<td>
+0.59
+</td>
+<td>
+Krug 1998[13]
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>NOTE:</strong> these bar graphs should not be interpreted as fractions of a total, as the two data sources do not appear to be comparable. But the red and blue bar graphs should still be internally comparable.</p>
+<p>The US is easily #1 of 30 wealthiest countries in Gun Homicides per capita, by a factor of 4:1</p>
+<p>Adding USA, Canada, and Mexico to all of Europe, USA is a strong #2 behind Mexico in total gun homicides per-capita</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb11-1" title="1">index <span class="op">=</span> (data[<span class="st">&#39;Region&#39;</span>] <span class="op">==</span> <span class="st">&#39;Europe&#39;</span>) <span class="op">+</span> <span class="op">\</span></a>
+<a class="sourceLine" id="cb11-2" title="2">        (data.index <span class="op">==</span> <span class="st">&#39;United States&#39;</span>) <span class="op">+</span> <span class="op">\</span></a>
+<a class="sourceLine" id="cb11-3" title="3">        (data.index <span class="op">==</span> <span class="st">&#39;Canada&#39;</span>) <span class="op">+</span> <span class="op">\</span></a>
+<a class="sourceLine" id="cb11-4" title="4">        (data.index <span class="op">==</span> <span class="st">&#39;Mexico&#39;</span>)</a>
+<a class="sourceLine" id="cb11-5" title="5">selected <span class="op">=</span> data[index]</a>
+<a class="sourceLine" id="cb11-6" title="6"></a>
+<a class="sourceLine" id="cb11-7" title="7"><span class="bu">print</span>(<span class="st">&quot;By Total Gun Homicides&quot;</span>)</a>
+<a class="sourceLine" id="cb11-8" title="8">sys.stdout.flush()</a>
+<a class="sourceLine" id="cb11-9" title="9"></a>
+<a class="sourceLine" id="cb11-10" title="10">by_guns <span class="op">=</span> selected.sort_values(<span class="st">&quot;Gun Homicides&quot;</span>, ascending<span class="op">=</span><span class="va">False</span>)</a>
+<a class="sourceLine" id="cb11-11" title="11"><span class="co">#by_guns[&#39;Gun Homicides&#39;].plot(kind=&#39;bar&#39;)</span></a>
+<a class="sourceLine" id="cb11-12" title="12">plot_percapita(by_guns, limit<span class="op">=</span><span class="dv">25</span>)</a>
+<a class="sourceLine" id="cb11-13" title="13">display_relevant(selected, limit<span class="op">=</span><span class="va">None</span>)</a></code></pre></div>
+<p>By Total Gun Homicides</p>
+<p>/home/zunbeltz/anaconda3/lib/python3.6/site-packages/pandas/core/computation/expressions.py:183: UserWarning: evaluating in Python space because the ‘+’ operator is not supported by numexpr for the bool dtype, use ‘|’ instead .format(op=op_str, alt_op=unsupported[op_str]))</p>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th>
+</th>
+<th>
+Homicides
+</th>
+<th>
+Gun Homicides
+</th>
+<th>
+Gun Data Source
+</th>
+</tr>
+<tr>
+<th>
+Country
+</th>
+<th>
+</th>
+<th>
+</th>
+<th>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>
+Mexico
+</th>
+<td>
+16.9
+</td>
+<td>
+10.00
+</td>
+<td>
+UNODC 2011[4]
+</td>
+</tr>
+<tr>
+<th>
+United States
+</th>
+<td>
+4.2
+</td>
+<td>
+3.70
+</td>
+<td>
+OAS 2012[5][6]
+</td>
+</tr>
+<tr>
+<th>
+Montenegro
+</th>
+<td>
+3.5
+</td>
+<td>
+2.06
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+Moldova
+</th>
+<td>
+7.5
+</td>
+<td>
+1.04
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+Canada
+</th>
+<td>
+1.6
+</td>
+<td>
+0.76
+</td>
+<td>
+Krug 1998[13]
+</td>
+</tr>
+<tr>
+<th>
+Serbia
+</th>
+<td>
+1.2
+</td>
+<td>
+0.62
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+Luxembourg
+</th>
+<td>
+2.5
+</td>
+<td>
+0.60
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+Greece
+</th>
+<td>
+1.5
+</td>
+<td>
+0.59
+</td>
+<td>
+Krug 1998[13]
+</td>
+</tr>
+<tr>
+<th>
+Croatia
+</th>
+<td>
+1.4
+</td>
+<td>
+0.57
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+Switzerland
+</th>
+<td>
+0.7
+</td>
+<td>
+0.52
+</td>
+<td>
+OAS 2011[1]
+</td>
+</tr>
+<tr>
+<th>
+Malta
+</th>
+<td>
+1.0
+</td>
+<td>
+0.48
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+Portugal
+</th>
+<td>
+1.2
+</td>
+<td>
+0.48
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+Belarus
+</th>
+<td>
+4.9
+</td>
+<td>
+0.38
+</td>
+<td>
+UNODC 2002[7]
+</td>
+</tr>
+<tr>
+<th>
+Ireland
+</th>
+<td>
+1.2
+</td>
+<td>
+0.36
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+Italy
+</th>
+<td>
+0.9
+</td>
+<td>
+0.36
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+Ukraine
+</th>
+<td>
+5.2
+</td>
+<td>
+0.35
+</td>
+<td>
+UNODC 2000[11]
+</td>
+</tr>
+<tr>
+<th>
+Estonia
+</th>
+<td>
+5.2
+</td>
+<td>
+0.30
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+Belgium
+</th>
+<td>
+1.7
+</td>
+<td>
+0.29
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+Finland
+</th>
+<td>
+2.2
+</td>
+<td>
+0.26
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+Lithuania
+</th>
+<td>
+6.6
+</td>
+<td>
+0.24
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+Bulgaria
+</th>
+<td>
+2.0
+</td>
+<td>
+0.23
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+Georgia
+</th>
+<td>
+4.3
+</td>
+<td>
+0.23
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+France
+</th>
+<td>
+1.1
+</td>
+<td>
+0.22
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+Denmark
+</th>
+<td>
+0.9
+</td>
+<td>
+0.22
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+Netherlands
+</th>
+<td>
+1.1
+</td>
+<td>
+0.20
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+Sweden
+</th>
+<td>
+1.0
+</td>
+<td>
+0.19
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+Slovakia
+</th>
+<td>
+1.5
+</td>
+<td>
+0.18
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+Austria
+</th>
+<td>
+0.6
+</td>
+<td>
+0.18
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+Latvia
+</th>
+<td>
+3.1
+</td>
+<td>
+0.18
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+Spain
+</th>
+<td>
+0.8
+</td>
+<td>
+0.15
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+Hungary
+</th>
+<td>
+1.3
+</td>
+<td>
+0.13
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+Czech Republic
+</th>
+<td>
+1.7
+</td>
+<td>
+0.12
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+Germany
+</th>
+<td>
+0.8
+</td>
+<td>
+0.06
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+Slovenia
+</th>
+<td>
+0.7
+</td>
+<td>
+0.05
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+Norway
+</th>
+<td>
+0.6
+</td>
+<td>
+0.04
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+United Kingdom
+</th>
+<td>
+1.2
+</td>
+<td>
+0.04
+</td>
+<td>
+WHO2012 [10]
+</td>
+</tr>
+<tr>
+<th>
+Romania
+</th>
+<td>
+2.0
+</td>
+<td>
+0.04
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+<tr>
+<th>
+Poland
+</th>
+<td>
+1.1
+</td>
+<td>
+0.02
+</td>
+<td>
+WHO 2012[10]
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Let’s just compare US, Canada, and UK:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb12-1" title="1">select <span class="op">=</span> data.loc[[<span class="st">&#39;United States&#39;</span>, <span class="st">&#39;Canada&#39;</span>, <span class="st">&#39;United Kingdom&#39;</span>]]</a>
+<a class="sourceLine" id="cb12-2" title="2">plot_percapita(select)</a></code></pre></div>
+<p>Normalize to the US numbers (inverse)</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb13-1" title="1">select[<span class="st">&#39;Homicides&#39;</span>] <span class="op">=</span> select[<span class="st">&#39;Homicides&#39;</span>][<span class="st">&#39;United States&#39;</span>] <span class="op">/</span> select[<span class="st">&#39;Homicides&#39;</span>]</a>
+<a class="sourceLine" id="cb13-2" title="2">select[<span class="st">&#39;Gun Homicides&#39;</span>] <span class="op">=</span> select[<span class="st">&#39;Gun Homicides&#39;</span>][<span class="st">&#39;United States&#39;</span>] <span class="op">/</span> select[<span class="st">&#39;Gun Homicides&#39;</span>]</a>
+<a class="sourceLine" id="cb13-3" title="3">display_relevant(select)</a></code></pre></div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th>
+</th>
+<th>
+Homicides
+</th>
+<th>
+Gun Homicides
+</th>
+<th>
+Gun Data Source
+</th>
+</tr>
+<tr>
+<th>
+Country
+</th>
+<th>
+</th>
+<th>
+</th>
+<th>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>
+United States
+</th>
+<td>
+1.00
+</td>
+<td>
+1.00
+</td>
+<td>
+OAS 2012[5][6]
+</td>
+</tr>
+<tr>
+<th>
+Canada
+</th>
+<td>
+2.62
+</td>
+<td>
+4.87
+</td>
+<td>
+Krug 1998[13]
+</td>
+</tr>
+<tr>
+<th>
+United Kingdom
+</th>
+<td>
+3.50
+</td>
+<td>
+92.50
+</td>
+<td>
+WHO2012 [10]
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>So, you are 2.6 times more likely to be killed in the US than Canada, and 3.5 times more likely than in the UK. That’s bad, but not extreme.</p>
+<p>However, you are 4.9 times more likely to be killed <em>with a gun</em> in the US than Canada, and almost 100 times more likely than in the UK. That is pretty extreme.</p>
+<p>Countries represented:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb14-1" title="1"><span class="cf">for</span> country <span class="kw">in</span> data.index:</a>
+<a class="sourceLine" id="cb14-2" title="2">    <span class="bu">print</span> country</a></code></pre></div>
+<p>File “<ipython-input-80-71833fc9d901>”, line 2 print country ^ SyntaxError: Missing parentheses in call to ‘print’. Did you mean print(country)?</p>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
